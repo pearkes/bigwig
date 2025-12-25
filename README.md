@@ -25,6 +25,8 @@ This server provides an endpoint for the iOS app to connect to
 and manages voice agent sessions. An OpenAI key is required for the 
 WebRTC voice API support.
 
+If you're just trying it out, this will work well on your local network.
+
 ```bash
 $ export OPENAI_API_KEY=...
 $ bigwig server --host 0.0.0.0
