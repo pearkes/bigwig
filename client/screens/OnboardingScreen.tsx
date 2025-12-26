@@ -295,7 +295,7 @@ export const OnboardingScreen = ({
 			)}
 			{pairingClaim ? renderPairingConfirm() : renderQuickLogin()}
 			{!pairingClaim && !forcePairing && showPairingForm && renderPairingForm()}
-			{onLogout && (
+			{onLogout && hasSavedCredentials && (
 				<TouchableOpacity
 					style={onboardingStyles.logoutButton}
 					onPress={() => setShowResetConfirm(true)}
