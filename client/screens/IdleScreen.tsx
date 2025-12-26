@@ -40,9 +40,11 @@ type IdleScreenProps = {
 	muteMicByDefault: boolean;
 	autoStartVoice: boolean;
 	showTranscript: boolean;
+	debugLogsEnabled: boolean;
 	onToggleMuteMicByDefault: () => void;
 	onToggleAutoStartVoice: () => void;
 	onToggleShowTranscript: () => void;
+	onToggleDebugLogsEnabled: () => void;
 	themePreference: ThemePreference;
 	resolvedTheme: ThemeMode;
 	onSetThemePreference: (preference: ThemePreference) => void;
@@ -68,9 +70,11 @@ export const IdleScreen = ({
 	muteMicByDefault,
 	autoStartVoice,
 	showTranscript,
+	debugLogsEnabled,
 	onToggleMuteMicByDefault,
 	onToggleAutoStartVoice,
 	onToggleShowTranscript,
+	onToggleDebugLogsEnabled,
 	themePreference,
 	resolvedTheme,
 	onSetThemePreference,
@@ -91,7 +95,7 @@ export const IdleScreen = ({
 	const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const joinCommand =
 		joinToken &&
-		`bigwig join --token ${joinToken}${serverUrl ? ` --server ${serverUrl}` : ""}`;
+		`bigwig worker join --token ${joinToken}${serverUrl ? ` --server ${serverUrl}` : ""}`;
 	const hasJoinCommand = Boolean(joinCommand);
 
 	useEffect(() => {
@@ -170,7 +174,12 @@ export const IdleScreen = ({
 
 			{/* Main content */}
 			<View style={idleStyles.centered}>
-				<View style={idleStyles.card}>
+				<View
+					style={[
+						idleStyles.card,
+						!workerConnected && !hasJoinCommand && idleStyles.cardTaller,
+					]}
+				>
 					<Text style={idleStyles.title}>
 						{workerConnected ? "Ready" : "Add your worker"}
 					</Text>
@@ -221,15 +230,14 @@ export const IdleScreen = ({
 						<>
 							{hasJoinCommand ? (
 								<>
-									<Text style={idleStyles.label}>Worker command</Text>
 									<View style={idleStyles.codeBlock}>
 										<ScrollView
 											horizontal
 											showsHorizontalScrollIndicator={false}
 										>
 											<Text style={idleStyles.codeText}>
-												bigwig join{"\n"} --token {joinToken}
-												{serverUrl ? `\n  --server ${serverUrl}` : ""}
+												bigwig worker join{"\n"} --token {joinToken}
+												{serverUrl ? `\n --server ${serverUrl}` : ""}
 											</Text>
 										</ScrollView>
 									</View>
@@ -329,6 +337,8 @@ export const IdleScreen = ({
 				onToggleAutoStartVoice={onToggleAutoStartVoice}
 				showTranscript={showTranscript}
 				onToggleShowTranscript={onToggleShowTranscript}
+				debugLogsEnabled={debugLogsEnabled}
+				onToggleDebugLogsEnabled={onToggleDebugLogsEnabled}
 				themePreference={themePreference}
 				resolvedTheme={resolvedTheme}
 				onSetThemePreference={onSetThemePreference}
