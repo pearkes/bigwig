@@ -678,6 +678,8 @@ async function handleSession(request: Request): Promise<Response> {
 }
 
 function formatUserInfo(info: Record<string, unknown>): string {
+	const markdown = typeof info?.user_markdown === "string" ? info.user_markdown : "";
+	if (markdown.trim().length > 0) return markdown;
 	const user = info?.user || {};
 	if (!user || Object.keys(user).length === 0) return "- Not configured";
 	return `- Name: ${user.name || "Unknown"}\n- Email: ${user.email || "Unknown"}\n- Location: ${user.location || "Unknown"}`;

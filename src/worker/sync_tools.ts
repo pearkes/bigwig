@@ -1,6 +1,5 @@
-import { copyFile, mkdir, readdir, rm, stat } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { workerSkillsSourceDir } from "../shared/paths";
 import { buildAgentsMd } from "../shared/prompts";
 import {
 	SUPPORTED_AUTOCOMPLETE,
@@ -9,21 +8,7 @@ import {
 } from "../tools/form-schema";
 import { getToolDocs } from "../tools/registry";
 import { WORKSPACE_DIR } from "./config";
-
-async function copyDir(src: string, dest: string): Promise<void> {
-	await rm(dest, { recursive: true, force: true });
-	await mkdir(dest, { recursive: true });
-	const entries = await readdir(src, { withFileTypes: true });
-	for (const entry of entries) {
-		const from = join(src, entry.name);
-		const to = join(dest, entry.name);
-		if (entry.isDirectory()) {
-			await copyDir(from, to);
-		} else {
-			await copyFile(from, to);
-		}
-	}
-}
+import { writeEmbeddedSkills } from "./embedded_skills";
 
 export async function generateAgentsMd(workspaceDir: string): Promise<void> {
 	const toolDocs = getToolDocs();
@@ -294,25 +279,9 @@ Type-specific options:
 }
 
 export async function syncTools(targetDir: string): Promise<void> {
-	const skillsSrc = workerSkillsSourceDir();
 	const skillsDst = join(targetDir, "skills");
 	await mkdir(skillsDst, { recursive: true });
-
-	try {
-		await copyFile(join(skillsSrc, "README.md"), join(skillsDst, "README.md"));
-		console.log("[sync] Copied skills/README.md");
-	} catch {
-		// ignore
-	}
-
-	const skillCreatorSrc = join(skillsSrc, "skills", "skill-creator");
-	try {
-		await stat(skillCreatorSrc);
-		await copyDir(skillCreatorSrc, join(skillsDst, "skill-creator"));
-		console.log("[sync] Copied skills/skill-creator/");
-	} catch {
-		// ignore
-	}
+	await writeEmbeddedSkills(targetDir);
 
 	await generateToolDocs(targetDir);
 	await generateAgentsMd(targetDir);

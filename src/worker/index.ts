@@ -262,10 +262,13 @@ async function getWorkspaceInfo(): Promise<Record<string, unknown>> {
 	let info: Record<string, unknown> = {};
 	let recent_tasks: Array<{ message: string; relative_time: string }> = [];
 
-	const infoPath = join(WORKSPACE_DIR, "info.json");
+	const infoPath = join(WORKSPACE_DIR, "BIGWIG.md");
 	try {
 		const raw = await readFile(infoPath, "utf8");
-		info = JSON.parse(raw) as Record<string, unknown>;
+		const trimmed = raw.trim();
+		if (trimmed) {
+			info = { user_markdown: trimmed };
+		}
 	} catch {
 		// ignore
 	}

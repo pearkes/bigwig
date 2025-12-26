@@ -165,10 +165,10 @@ This is the Bigwig agent workspace. You can perform tasks for the user here.
 ## How to perform tasks
 
 - Be creative. Write code (Python) when you don't have tools available.
-- Use open-source projects that are popular and well respected. You can install things on this computer! You also have
-credentials for LLM providers in info.json.
+- Use open-source projects that are popular and well respected. You can install things on this computer! User info lives
+in BIGWIG.md, and credentials live in .env.
 - Don't be afraid to automate browser interactions, but prefer to install a CLI tool to get something done.
-- Avoid solutions that require credentials from the user, but you can ask them if they need to make things happen. New secrets should go in info.json and .env.
+- Avoid solutions that require credentials from the user, but you can ask them if they need to make things happen. New secrets should go in .env.
 
 ## When to Use Each User Interaction Tool
 

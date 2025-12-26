@@ -19,6 +19,9 @@ bun run compile             # Build single binary to dist/bigwig
 - `src/worker/` — local daemon (sideband to OpenAI, runs CLI agent)
 - `src/shared/` — shared types/utils
 - `client/` — Expo/React Native app
+
+## User Info
+- `BIGWIG.md` — user info surfaced to the worker and instructions
 ## Principles
 - **Proof of concept** — don't over-engineer
 - **Sideband pattern** — worker connects to OpenAI Realtime alongside client
