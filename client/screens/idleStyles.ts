@@ -54,6 +54,9 @@ export const getIdleStyles = (theme: ThemeMode) => {
 			padding: 20,
 			gap: 12,
 		},
+		cardTaller: {
+			paddingBottom: 28,
+		},
 		title: {
 			fontSize: 22,
 			fontWeight: "700",
@@ -124,7 +127,10 @@ export const getIdleStyles = (theme: ThemeMode) => {
 		helperText: {
 			color: colors.helper,
 			fontSize: 12,
-			marginTop: 8,
+			lineHeight: 16,
+			marginTop: 2,
+			paddingBottom: 4,
+			includeFontPadding: false,
 		},
 		logoutFooter: {
 			position: "absolute",
