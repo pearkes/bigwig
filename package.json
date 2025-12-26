@@ -1,0 +1,32 @@
+{
+	"name": "bigwig-ts",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"start": "bun run src/index.ts",
+		"server": "bun run src/index.ts server",
+		"worker": "bun run src/index.ts worker",
+		"test": "bun test tests/ts/protocol tests/ts/server tests/ts/worker",
+		"test:integration": "bun test tests/ts/integration",
+		"client:test": "npm --prefix client run test",
+		"test:all": "bun test tests/ts/protocol tests/ts/server tests/ts/worker tests/ts/integration && npm --prefix client run test",
+		"build": "bun build src/index.ts --outdir dist",
+		"compile": "bun build --compile src/index.ts --outfile dist/bigwig",
+		"check": "biome check",
+		"lint": "biome lint",
+		"format": "biome format --write"
+	},
+	"dependencies": {
+		"@noble/ed25519": "^2.3.0",
+		"@noble/hashes": "^1.5.0",
+		"dotenv": "^16.4.5",
+		"mime-types": "^2.1.35",
+		"openai": "^4.73.1",
+		"qrcode": "^1.5.4",
+		"qrcode-terminal": "^0.12.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.10"
+	}
+}

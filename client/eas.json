@@ -1,0 +1,38 @@
+{
+	"cli": {
+		"version": ">= 5.0.0",
+		"appVersionSource": "local"
+	},
+	"build": {
+		"development": {
+			"developmentClient": true,
+			"distribution": "internal",
+			"ios": {
+				"simulator": true
+			}
+		},
+		"preview": {
+			"distribution": "internal",
+			"env": {
+				"APP_ENV": "production"
+			},
+			"ios": {
+				"simulator": false
+			}
+		},
+		"production": {
+			"autoIncrement": true,
+			"env": {
+				"APP_ENV": "production"
+			}
+		}
+	},
+	"submit": {
+		"production": {
+			"ios": {
+				"appleId": "jackpearkes@gmail.com",
+				"ascAppId": "6756220342"
+			}
+		}
+	}
+}

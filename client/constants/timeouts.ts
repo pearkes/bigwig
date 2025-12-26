@@ -1,0 +1,4 @@
+export const RECONNECT_DELAYS = [1000, 2000, 5000, 10000, 30000];
+export const MAX_RETRIES = 3;
+export const PENDING_TASK_TIMEOUT_MS = 5000;
+export const PENDING_TASK_FADE_MS = 2000;

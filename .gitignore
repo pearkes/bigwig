@@ -1,0 +1,21 @@
+vendor/
+docs/
+.claude/
+.agents/
+.env
+.env.*
+dist/
+node_modules/
+web/data/credentials.json
+
+# Worker workspace (tools source is tracked, build artifacts are not)
+worker/workspace/tools/node_modules/
+worker/workspace/tools/bin/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Internal state
+.bigwig/
