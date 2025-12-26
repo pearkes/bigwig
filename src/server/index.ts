@@ -1026,30 +1026,35 @@ function printPairingInfo(): void {
 
 	const isTty = Boolean(process.stdout.isTTY);
 	if (!isTty) {
+		console.log(`[Pairing] QR code: ${qrUrl}`);
 		console.log(
 			"[Pairing] Pairing code: %s  Match code: %s",
 			pairing.pairing_code,
 			pairing.match_code,
 		);
-		console.log(`[Pairing] QR code: ${qrUrl}`);
 		return;
 	}
 
-	console.log(
-		"[Pairing] Pairing code: %s  Match code: %s",
-		pairing.pairing_code,
-		pairing.match_code,
-	);
 	console.log("[Pairing]");
 	console.log("Open the Bigwig iOS App and scan this QR Code:\n");
 	void import("qrcode-terminal")
 		.then((mod) => {
 			const qr = (mod as { default?: typeof mod }).default ?? mod;
 			qr.generate(payload, { small: true });
+			console.log(
+				"[Pairing] Pairing code: %s  Match code: %s",
+				pairing.pairing_code,
+				pairing.match_code,
+			);
 			console.log(`\nCode not displaying correctly? ${qrUrl}\n`);
 		})
 		.catch(() => {
 			console.log("[Pairing] (QR generator not installed)");
+			console.log(
+				"[Pairing] Pairing code: %s  Match code: %s",
+				pairing.pairing_code,
+				pairing.match_code,
+			);
 			console.log(`\nCode not displaying correctly? ${qrUrl}\n`);
 		});
 }
