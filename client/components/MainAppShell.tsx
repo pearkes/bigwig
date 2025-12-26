@@ -49,9 +49,11 @@ export const MainAppShell = () => {
 		autoStartVoice,
 		muteMicByDefault,
 		showTranscript,
+		debugLogsEnabled,
 		toggleAutoStartVoice,
 		toggleMuteMicByDefault,
 		toggleShowTranscript,
+		toggleDebugLogsEnabled,
 		themePreference,
 		resolvedTheme,
 		setThemePreference,
@@ -319,9 +321,11 @@ export const MainAppShell = () => {
 				muteMicByDefault={muteMicByDefault}
 				autoStartVoice={autoStartVoice}
 				showTranscript={showTranscript}
+				debugLogsEnabled={debugLogsEnabled}
 				onToggleMuteMicByDefault={toggleMuteMicByDefault}
 				onToggleAutoStartVoice={toggleAutoStartVoice}
 				onToggleShowTranscript={toggleShowTranscript}
+				onToggleDebugLogsEnabled={toggleDebugLogsEnabled}
 				themePreference={themePreference}
 				resolvedTheme={resolvedTheme}
 				onSetThemePreference={setThemePreference}
@@ -394,9 +398,11 @@ export const MainAppShell = () => {
 			onCloseSettings={handleCloseSettings}
 			muteMicByDefault={muteMicByDefault}
 			autoStartVoice={autoStartVoice}
+			debugLogsEnabled={debugLogsEnabled}
 			onToggleMuteMicByDefault={toggleMuteMicByDefault}
 			onToggleAutoStartVoice={toggleAutoStartVoice}
 			onToggleShowTranscript={toggleShowTranscript}
+			onToggleDebugLogsEnabled={toggleDebugLogsEnabled}
 			themePreference={themePreference}
 			resolvedTheme={resolvedTheme}
 			onSetThemePreference={setThemePreference}

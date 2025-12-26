@@ -36,6 +36,7 @@ class OpenAICallModule: RCTEventEmitter {
     // Connection state tracking - must have BOTH before reporting connected
     private var isAudioSessionActive = false
     private var isWebRTCConnected = false
+    private var desiredSpeakerEnabled = false
     
     // MARK: - Initialization
     
@@ -143,6 +144,7 @@ class OpenAICallModule: RCTEventEmitter {
         resolver resolve: @escaping RCTPromiseResolveBlock,
         rejecter reject: @escaping RCTPromiseRejectBlock
     ) {
+        desiredSpeakerEnabled = enabled
         // Run on dedicated audio queue to prevent race conditions with CallKit audio activation
         audioQueue.async {
             do {
@@ -217,6 +219,16 @@ extension OpenAICallModule: OpenAICallManagerDelegate {
             
             print("[OpenAICallModule] Audio session activated")
             self.webRTCClient?.audioSessionDidActivate(audioSession)
+            if self.desiredSpeakerEnabled {
+                do {
+                    let rtcSession = RTCAudioSession.sharedInstance()
+                    rtcSession.lockForConfiguration()
+                    defer { rtcSession.unlockForConfiguration() }
+                    try rtcSession.overrideOutputAudioPort(.speaker)
+                } catch {
+                    print("[OpenAICallModule] Speaker reapply error: \(error)")
+                }
+            }
             
             DispatchQueue.main.async {
                 self.isAudioSessionActive = true

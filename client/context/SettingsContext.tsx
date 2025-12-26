@@ -20,11 +20,13 @@ type SettingsContextValue = {
 	showTranscript: boolean;
 	themePreference: ThemePreference;
 	resolvedTheme: ThemeMode;
+	debugLogsEnabled: boolean;
 	setServerInfo: (info: ServerInfo) => void;
 	clearServerInfo: () => void;
 	toggleAutoStartVoice: () => void;
 	toggleMuteMicByDefault: () => void;
 	toggleShowTranscript: () => void;
+	toggleDebugLogsEnabled: () => void;
 	setThemePreference: (preference: ThemePreference) => void;
 };
 
@@ -40,6 +42,7 @@ export const SettingsProvider = ({
 	const [autoStartVoice, setAutoStartVoice] = useState(false);
 	const [muteMicByDefault, setMuteMicByDefault] = useState(true);
 	const [showTranscript, setShowTranscript] = useState(true);
+	const [debugLogsEnabled, setDebugLogsEnabled] = useState(false);
 	const [themePreference, setThemePreferenceState] =
 		useState<ThemePreference>("system");
 	const [serverUrl, setServerUrl] = useState<string | null>(null);
@@ -61,6 +64,7 @@ export const SettingsProvider = ({
 				setMuteMicByDefault(settings.muteMicByDefault ?? true);
 				setShowTranscript(settings.showTranscript ?? true);
 				setThemePreferenceState(settings.themePreference ?? "system");
+				setDebugLogsEnabled(settings.debugLogsEnabled ?? false);
 			}
 			if (server) {
 				setServerUrl(server.url);
@@ -92,6 +96,12 @@ export const SettingsProvider = ({
 		updateSettings({ showTranscript: newValue });
 	};
 
+	const toggleDebugLogsEnabled = () => {
+		const newValue = !debugLogsEnabled;
+		setDebugLogsEnabled(newValue);
+		updateSettings({ debugLogsEnabled: newValue });
+	};
+
 	const setThemePreference = (preference: ThemePreference) => {
 		setThemePreferenceState(preference);
 		updateSettings({ themePreference: preference });
@@ -117,11 +127,13 @@ export const SettingsProvider = ({
 		showTranscript,
 		themePreference,
 		resolvedTheme,
+		debugLogsEnabled,
 		setServerInfo: updateServerInfo,
 		clearServerInfo,
 		toggleAutoStartVoice,
 		toggleMuteMicByDefault,
 		toggleShowTranscript,
+		toggleDebugLogsEnabled,
 		setThemePreference,
 	};
 

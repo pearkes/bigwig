@@ -38,7 +38,8 @@ type CallContextValue = {
 const CallContext = createContext<CallContextValue | undefined>(undefined);
 
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
-	const { serverUrl, muteMicByDefault, autoStartVoice } = useSettings();
+	const { serverUrl, muteMicByDefault, autoStartVoice, debugLogsEnabled } =
+		useSettings();
 	const { workerConnected, broadcastSystemMessage, sendCallHeartbeat } =
 		useTasks();
 	const { setErrorMessage } = useUI();
@@ -102,8 +103,21 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 		sidebandRetryRef.current.attempts = 0;
 	}, []);
 
+	const logDebug = useCallback(
+		(...args: unknown[]) => {
+			if (!debugLogsEnabled) return;
+			console.log(...args);
+		},
+		[debugLogsEnabled],
+	);
+
 	const attemptSidebandConnect = useCallback(
-		async (callId: string, ephemeralKey: string): Promise<boolean> => {
+		async (
+			callId: string,
+			ephemeralKey: string,
+			options?: { notifyUser?: boolean },
+		): Promise<boolean> => {
+			const notifyUser = options?.notifyUser ?? true;
 			if (!serverUrl) return false;
 			try {
 				const connectRes = await fetchWithAuth({
@@ -119,23 +133,39 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 				});
 				if (!connectRes.ok) {
 					const message = `Worker sideband connection failed (status ${connectRes.status}).`;
-					console.warn("[connect] Failed to connect worker sideband");
-					setErrorMessage(message);
-					broadcastSystemMessage(message, false);
+					if (notifyUser) {
+						console.warn("[connect] Failed to connect worker sideband");
+						setErrorMessage(message);
+						broadcastSystemMessage(message, false);
+					} else {
+						logDebug("[connect] Sideband retry failed", {
+							status: connectRes.status,
+						});
+					}
 					return false;
 				}
-				console.log("[connect] Worker sideband connected");
+				logDebug("[connect] Worker sideband connected");
 				clearSidebandRetry();
 				return true;
 			} catch (e) {
-				console.warn("[connect] Error connecting sideband:", e);
-				const message = "Worker sideband connection error.";
-				setErrorMessage(message);
-				broadcastSystemMessage(message, false);
+				if (notifyUser) {
+					console.warn("[connect] Error connecting sideband:", e);
+					const message = "Worker sideband connection error.";
+					setErrorMessage(message);
+					broadcastSystemMessage(message, false);
+				} else {
+					logDebug("[connect] Sideband retry error:", e);
+				}
 				return false;
 			}
 		},
-		[serverUrl, broadcastSystemMessage, setErrorMessage, clearSidebandRetry],
+		[
+			serverUrl,
+			broadcastSystemMessage,
+			setErrorMessage,
+			clearSidebandRetry,
+			logDebug,
+		],
 	);
 
 	const scheduleSidebandRetry = useCallback(
@@ -145,14 +175,20 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 			const delay =
 				RECONNECT_DELAYS[Math.min(attempt, RECONNECT_DELAYS.length - 1)];
 			sidebandRetryRef.current.attempts += 1;
+			logDebug("[connect] Scheduling sideband retry", {
+				attempt: sidebandRetryRef.current.attempts,
+				delay,
+			});
 			sidebandRetryRef.current.timeout = setTimeout(() => {
 				sidebandRetryRef.current.timeout = null;
-				attemptSidebandConnect(callId, ephemeralKey).then((ok) => {
+				attemptSidebandConnect(callId, ephemeralKey, {
+					notifyUser: false,
+				}).then((ok) => {
 					if (!ok) scheduleSidebandRetry(callId, ephemeralKey);
 				});
 			}, delay);
 		},
-		[attemptSidebandConnect],
+		[attemptSidebandConnect, logDebug],
 	);
 
 	useEffect(() => {
@@ -342,7 +378,9 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 		const callId = pendingCallIdRef.current;
 		const ephemeralKey = pendingEphemeralKeyRef.current;
 		if (callId && ephemeralKey) {
-			attemptSidebandConnect(callId, ephemeralKey).then((ok) => {
+			attemptSidebandConnect(callId, ephemeralKey, {
+				notifyUser: false,
+			}).then((ok) => {
 				if (!ok) scheduleSidebandRetry(callId, ephemeralKey);
 			});
 		}

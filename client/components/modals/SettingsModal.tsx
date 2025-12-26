@@ -14,6 +14,8 @@ type SettingsModalProps = {
 	onToggleAutoStartVoice: () => void;
 	showTranscript: boolean;
 	onToggleShowTranscript: () => void;
+	debugLogsEnabled: boolean;
+	onToggleDebugLogsEnabled: () => void;
 	themePreference: ThemePreference;
 	resolvedTheme: ThemeMode;
 	onSetThemePreference: (preference: ThemePreference) => void;
@@ -32,6 +34,8 @@ export const SettingsModal = ({
 	onToggleAutoStartVoice,
 	showTranscript,
 	onToggleShowTranscript,
+	debugLogsEnabled,
+	onToggleDebugLogsEnabled,
 	themePreference,
 	resolvedTheme,
 	onSetThemePreference,
@@ -220,6 +224,35 @@ export const SettingsModal = ({
 									style={[
 										styles.toggleKnob,
 										showTranscript && styles.toggleKnobActive,
+										isDark && styles.toggleKnobDark,
+									]}
+								/>
+							</TouchableOpacity>
+						</View>
+						<View
+							style={[styles.settingsRow, isDark && styles.settingsRowDark]}
+						>
+							<Text
+								style={[
+									styles.settingsLabel,
+									isDark && styles.settingsLabelDark,
+								]}
+							>
+								Debug logs
+							</Text>
+							<TouchableOpacity
+								style={[
+									styles.toggle,
+									debugLogsEnabled && styles.toggleActive,
+									isDark && styles.toggleDark,
+									isDark && debugLogsEnabled && styles.toggleActiveDark,
+								]}
+								onPress={onToggleDebugLogsEnabled}
+							>
+								<View
+									style={[
+										styles.toggleKnob,
+										debugLogsEnabled && styles.toggleKnobActive,
 										isDark && styles.toggleKnobDark,
 									]}
 								/>

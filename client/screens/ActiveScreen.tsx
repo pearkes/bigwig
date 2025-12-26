@@ -110,6 +110,8 @@ export type ActiveScreenProps = {
 	onToggleMuteMicByDefault: () => void;
 	onToggleAutoStartVoice: () => void;
 	onToggleShowTranscript: () => void;
+	debugLogsEnabled: boolean;
+	onToggleDebugLogsEnabled: () => void;
 	themePreference: ThemePreference;
 	resolvedTheme: ThemeMode;
 	onSetThemePreference: (preference: ThemePreference) => void;
@@ -171,6 +173,8 @@ export const ActiveScreen = ({
 	onToggleMuteMicByDefault,
 	onToggleAutoStartVoice,
 	onToggleShowTranscript,
+	debugLogsEnabled,
+	onToggleDebugLogsEnabled,
 	themePreference,
 	resolvedTheme,
 	onSetThemePreference,
@@ -503,6 +507,8 @@ export const ActiveScreen = ({
 					onToggleAutoStartVoice={onToggleAutoStartVoice}
 					showTranscript={showTranscript}
 					onToggleShowTranscript={onToggleShowTranscript}
+					debugLogsEnabled={debugLogsEnabled}
+					onToggleDebugLogsEnabled={onToggleDebugLogsEnabled}
 					themePreference={themePreference}
 					resolvedTheme={resolvedTheme}
 					onSetThemePreference={onSetThemePreference}

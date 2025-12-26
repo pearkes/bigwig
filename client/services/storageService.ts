@@ -13,6 +13,7 @@ export type AppSettings = {
 	muteMicByDefault?: boolean;
 	showTranscript?: boolean;
 	themePreference?: ThemePreference;
+	debugLogsEnabled?: boolean;
 };
 
 export type ServerInfo = {
