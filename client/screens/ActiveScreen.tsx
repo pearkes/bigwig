@@ -104,6 +104,7 @@ export type ActiveScreenProps = {
 	workerWorkspace: { path?: string } | null;
 	onCloseWorkerInfo: () => void;
 	onCloseSettings: () => void;
+	onLogout: () => void;
 	muteMicByDefault: boolean;
 	autoStartVoice: boolean;
 	onToggleMuteMicByDefault: () => void;
@@ -164,6 +165,7 @@ export const ActiveScreen = ({
 	workerWorkspace,
 	onCloseWorkerInfo,
 	onCloseSettings,
+	onLogout,
 	muteMicByDefault,
 	autoStartVoice,
 	onToggleMuteMicByDefault,
@@ -491,6 +493,7 @@ export const ActiveScreen = ({
 				<SettingsModal
 					visible={showSettings}
 					onClose={onCloseSettings}
+					onLogout={onLogout}
 					includeLiveMuteToggle={true}
 					isMuted={isMuted}
 					onToggleMute={onToggleMute}

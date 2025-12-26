@@ -32,6 +32,7 @@ type IdleScreenProps = {
 	onCloseWorkerInfo: () => void;
 	onOpenSettings: () => void;
 	onCloseSettings: () => void;
+	onLogout: () => void;
 	showWorkerInfo: boolean;
 	showSettings: boolean;
 	workerId: string | null;
@@ -59,6 +60,7 @@ export const IdleScreen = ({
 	onCloseWorkerInfo,
 	onOpenSettings,
 	onCloseSettings,
+	onLogout,
 	showWorkerInfo,
 	showSettings,
 	workerId,
@@ -320,6 +322,7 @@ export const IdleScreen = ({
 			<SettingsModal
 				visible={showSettings}
 				onClose={onCloseSettings}
+				onLogout={onLogout}
 				muteMicByDefault={muteMicByDefault}
 				onToggleMuteMicByDefault={onToggleMuteMicByDefault}
 				autoStartVoice={autoStartVoice}

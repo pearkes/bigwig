@@ -4,6 +4,7 @@ import type { ThemeMode, ThemePreference } from "../../theme/theme";
 type SettingsModalProps = {
 	visible: boolean;
 	onClose: () => void;
+	onLogout?: () => void;
 	includeLiveMuteToggle?: boolean;
 	isMuted?: boolean;
 	onToggleMute?: () => void;
@@ -21,6 +22,7 @@ type SettingsModalProps = {
 export const SettingsModal = ({
 	visible,
 	onClose,
+	onLogout,
 	includeLiveMuteToggle = false,
 	isMuted,
 	onToggleMute,
@@ -223,6 +225,18 @@ export const SettingsModal = ({
 								/>
 							</TouchableOpacity>
 						</View>
+						{onLogout && (
+							<TouchableOpacity
+								style={[styles.logoutButton, isDark && styles.logoutButtonDark]}
+								onPress={onLogout}
+							>
+								<Text
+									style={[styles.logoutText, isDark && styles.logoutTextDark]}
+								>
+									Log out
+								</Text>
+							</TouchableOpacity>
+						)}
 						<TouchableOpacity
 							style={[styles.modalClose, isDark && styles.modalCloseDark]}
 							onPress={onClose}
@@ -378,5 +392,24 @@ const styles = StyleSheet.create({
 	},
 	modalCloseTextDark: {
 		color: "#f5f5f5",
+	},
+	logoutButton: {
+		marginTop: 20,
+		alignItems: "center",
+		paddingVertical: 12,
+		borderRadius: 8,
+		borderWidth: 1,
+		borderColor: "#d32f2f",
+	},
+	logoutButtonDark: {
+		borderColor: "#ff6b6b",
+	},
+	logoutText: {
+		color: "#d32f2f",
+		fontSize: 15,
+		fontWeight: "600",
+	},
+	logoutTextDark: {
+		color: "#ff6b6b",
 	},
 });

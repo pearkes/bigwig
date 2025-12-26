@@ -56,7 +56,10 @@ afterAll(() => {
 
 describe("server routes", () => {
 	test("pairing status returns paired flag", async () => {
-		if (!server) return;
+		if (!server || !serverMod) return;
+		const { serverState } = serverMod.__test__;
+		serverState.paired_device = null;
+
 		const res = await fetch(`${baseUrl}/pairing/status`);
 		expect(res.status).toBe(200);
 		const body = await res.json();
@@ -64,7 +67,10 @@ describe("server routes", () => {
 	});
 
 	test("session blocked when server not paired", async () => {
-		if (!server) return;
+		if (!server || !serverMod) return;
+		const { serverState } = serverMod.__test__;
+		serverState.paired_device = null;
+
 		const res = await fetch(`${baseUrl}/session`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },

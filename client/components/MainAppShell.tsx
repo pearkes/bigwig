@@ -205,6 +205,8 @@ export const MainAppShell = () => {
 
 	const handleLogout = async () => {
 		setShowDropdown(false);
+		setShowSettings(false);
+		setShowWorkerInfo(false);
 		await logout();
 		await disconnect();
 		resetRealtimeState();
@@ -309,6 +311,7 @@ export const MainAppShell = () => {
 				onCloseWorkerInfo={handleCloseWorkerInfo}
 				onOpenSettings={handleOpenSettings}
 				onCloseSettings={handleCloseSettings}
+				onLogout={handleLogout}
 				showWorkerInfo={showWorkerInfo}
 				showSettings={showSettings}
 				workerId={workerId}
@@ -343,6 +346,7 @@ export const MainAppShell = () => {
 			onOpenSettings={handleOpenSettings}
 			onClearTasks={handleClearTasks}
 			onEndSession={handleEndSession}
+			onLogout={handleLogout}
 			callStatus={callStatus}
 			isMuted={isMuted}
 			isSpeakerEnabled={isSpeakerEnabled}
