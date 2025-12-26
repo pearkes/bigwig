@@ -17,6 +17,11 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Install
         run: bun install --frozen-lockfile
 
@@ -29,4 +34,6 @@ jobs:
           BIGWIG_ALLOW_MISSING_AGENT_CLI: "1"
 
       - name: Client Test
-        run: npm --prefix client run test
+        run: |
+          npm ci --prefix client
+          npm --prefix client run test
