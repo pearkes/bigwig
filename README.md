@@ -2,7 +2,7 @@
 
 Voice-controlled assistant that orchestrates CLI coding agents (amp, claude code, etc.) via OpenAI Realtime API. Read more of the rational in [my blog post](https://www.jackpearkes.com/posts/this-is-my-ai-assistant), which also includes an architecture diagram and more details on security and sandboxing.
 
-## Why
+## Why?
 
 CLI agents already solve or will continue to improve workflows around memory, tools, and persistence. This wraps a CLI agent in voice + a mobile UI capable of CarPlay, long-running calls, etc., so you can get a very capable self-managed assistant that can use a variety of upstream model providers and countless tools.
 
@@ -70,6 +70,9 @@ Details:
     unpair             Drop paired credentials and reset workers
     --host <host>      Bind host (e.g. 0.0.0.0 for LAN access)
     --origin <url>     Override pairing/QR origin URL
+
+  Notes:
+    Requires OPENAI_API_KEY for OpenAI Realtime/WebRTC voice sessions
 
 
   Usage: bigwig worker [options]

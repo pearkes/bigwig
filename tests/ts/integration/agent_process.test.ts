@@ -12,8 +12,11 @@ import { join } from "node:path";
  * 2. Return events with valid schema
  * 3. Complete without errors
  *
- * Run with: bun test tests/ts/integration/agent_process.test.ts
+ * Run with: BIGWIG_RUN_INTEGRATION=1 bun test tests/ts/integration/agent_process.test.ts
  */
+
+const runIntegration = process.env.BIGWIG_RUN_INTEGRATION === "1";
+const describeIntegration = runIntegration ? describe : describe.skip;
 
 const TEST_WORKSPACE = mkdtempSync(join(tmpdir(), "bigwig-test-"));
 process.env.WORKSPACE_DIR = TEST_WORKSPACE;
@@ -152,7 +155,7 @@ async function checkCliAvailable(cmd: string): Promise<boolean> {
 	}
 }
 
-describe("Agent Process Integration", () => {
+describeIntegration("Agent Process Integration", () => {
 	let ampAvailable = false;
 	let claudeAvailable = false;
 

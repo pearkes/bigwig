@@ -67,10 +67,11 @@ async function waitForEvent<T>(
 }
 
 const repoRoot = join(import.meta.dir, "..", "..", "..");
+const runIntegration = process.env.BIGWIG_RUN_INTEGRATION === "1";
 const allowNetworkTests = process.env.BIGWIG_TEST_NETWORK === "1";
 
 async function canListenOnLocalhost(): Promise<boolean> {
-	if (!allowNetworkTests) return false;
+	if (!runIntegration || !allowNetworkTests) return false;
 	return new Promise((resolve) => {
 		const server = net.createServer();
 		server.unref();
@@ -81,7 +82,7 @@ async function canListenOnLocalhost(): Promise<boolean> {
 	});
 }
 
-const canRunNetworkTests = allowNetworkTests && (await canListenOnLocalhost());
+const canRunNetworkTests = runIntegration && (await canListenOnLocalhost());
 const describeWithNetwork = canRunNetworkTests ? describe : describe.skip;
 
 type ConnectedEvent = { type: "connected" };

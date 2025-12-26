@@ -37,6 +37,9 @@ export const SERVER_HELP = [
 	"  --host <host>      Bind host (e.g. 0.0.0.0 for LAN access)",
 	"  --origin <url>     Override pairing/QR origin URL",
 	"",
+	"Notes:",
+	"  Requires OPENAI_API_KEY for OpenAI Realtime/WebRTC voice sessions",
+	"",
 ].join("\n");
 
 export function printServerUsage(): void {
@@ -1055,6 +1058,13 @@ export function startServer(args: string[] = []): ReturnType<typeof Bun.serve> {
 	const { host, origin } = parseServerArgs(args);
 	bindHostOverride = host ?? "";
 	bindOriginOverride = origin ?? "";
+	const apiKey = getEnv("OPENAI_API_KEY", "").trim();
+	if (!apiKey) {
+		console.error(
+			"\n[server] OPENAI_API_KEY is required to start Bigwig.\n\nThe server manages voice sessions and currently depends on the OpenAI Realtime/WebRTC API, with no other providers possible.\nSet it and try again:\n\n  export OPENAI_API_KEY=...\n",
+		);
+		process.exit(1);
+	}
 	const hostname = bindHostOverride || getEnv("HOST", "");
 	const server = Bun.serve<SocketData>({
 		hostname: hostname || undefined,

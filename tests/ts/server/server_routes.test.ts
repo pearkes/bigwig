@@ -29,6 +29,7 @@ const signMessage = async (
 };
 
 beforeAll(async () => {
+	process.env.OPENAI_API_KEY = "test-key";
 	process.env.BIGWIG_CREDENTIALS_PATH = join(
 		tmpdir(),
 		`bigwig-credentials-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
