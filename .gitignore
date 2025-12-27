@@ -12,6 +12,9 @@ web/data/credentials.json
 worker/workspace/tools/node_modules/
 worker/workspace/tools/bin/
 
+# Generated embedded skills manifest
+src/worker/embedded_skills.json
+
 # Python
 __pycache__/
 *.pyc
