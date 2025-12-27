@@ -17,7 +17,7 @@ This single binary contains both the server and worker process.
 
 ```bash
 $ git clone https://github.com/pearkes/bigwig.git
-$ bun compile
+$ bun install && bun compile
 # dist/bigwig
 $ cp dist/bigwig ~/.local/bin/
 ...
