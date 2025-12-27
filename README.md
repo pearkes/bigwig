@@ -95,6 +95,14 @@ bun run server                # Run the server
 bun run check                 # Lint + format
 ```
 
+## Security
+
+The CLI agent being run by the worker process executes with the equivalent of `--dangerously-allow-all`. You should only use this if you have a strong understanding of the risks associated, and take the appropriate precautions in the environment the agent is running in.
+
+The client (iOS app) and server pair together to protect the server endpoints, which expose the API to run tasks. The client claims a nonce, then proves possession of a newly generated device key by signing a pairing message which the server verifies, storing the device public key. After pairing, requests are signed, and the server issues short‑lived session tokens as well as one‑time worker join tokens. 
+
+Workers exchange a join token for a persistent credential used to authenticate their connection.
+
 ## TODO
 
 The status of this project is a working proof of concept that I think can function day-to-day reliably.
@@ -105,5 +113,6 @@ Improvements to be made in no particular order:
 - [ ] Explore support for alternative Voice APIs (currently, OpenAI is required and assumed)
 - [ ] Allow for authentication/bootstrap of CLI agents via the iOS app _without_ becoming an OAuth provider
 - [ ] Version control integration for the worker, to persist and manage changes to the workspace?
+- [ ] Explore built-in sandboxing
 
 Note that while it was carefully managed and verified, a large amount of this codebase was written by CLI agents/LLMs. See [AGENTS.md](AGENTS.md) for agent guidelines.

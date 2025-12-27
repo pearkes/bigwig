@@ -1,6 +1,6 @@
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { useColorScheme } from "react-native";
+import { Appearance } from "react-native";
 import type { AppSettings, ServerInfo } from "../services/storageService";
 import {
 	clearServerInfo as clearServerInfoStorage,
@@ -49,10 +49,10 @@ export const SettingsProvider = ({
 	const [serverFingerprint, setServerFingerprint] = useState<string | null>(
 		null,
 	);
-	const systemScheme = useColorScheme();
+	const [systemScheme, setSystemScheme] = useState(Appearance.getColorScheme());
 	const resolvedTheme = resolveTheme(
 		themePreference,
-		systemScheme === "dark" ? "dark" : "light",
+		systemScheme,
 	);
 
 	useEffect(() => {
@@ -72,6 +72,13 @@ export const SettingsProvider = ({
 			}
 		};
 		load();
+	}, []);
+
+	useEffect(() => {
+		const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+			setSystemScheme(colorScheme);
+		});
+		return () => subscription.remove();
 	}, []);
 
 	const updateSettings = async (newSettings: Partial<AppSettings>) => {
