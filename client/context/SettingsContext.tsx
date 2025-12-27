@@ -50,10 +50,7 @@ export const SettingsProvider = ({
 		null,
 	);
 	const [systemScheme, setSystemScheme] = useState(Appearance.getColorScheme());
-	const resolvedTheme = resolveTheme(
-		themePreference,
-		systemScheme,
-	);
+	const resolvedTheme = resolveTheme(themePreference, systemScheme);
 
 	useEffect(() => {
 		const load = async () => {
