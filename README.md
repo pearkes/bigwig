@@ -16,9 +16,13 @@ CLI agents already solve or will continue to improve workflows around memory, to
 This single binary contains both the server and worker process.
 
 ```bash
-$ curl -fsSL https://www.bigwig.ceo/install.sh | bash
+$ git clone https://github.com/pearkes/bigwig.git
+$ bun compile
+# dist/bigwig
+$ cp dist/bigwig ~/.local/bin/
 ...
 ```
+
 #### 2. Start the server with defaults and pair your phone.
 
 This server provides an endpoint for the iOS app to connect to 
