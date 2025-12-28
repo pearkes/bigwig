@@ -1,5 +1,3 @@
-import { join } from "node:path";
-import { writeEmbeddedSkillsToDir } from "../../embedded_skills";
 import type {
 	AgentPlugin,
 	AuthContext,
@@ -18,6 +16,10 @@ export const ampPlugin: AgentPlugin = {
 		jsonStreaming: true,
 		threadResume: true,
 		mcp: true,
+	},
+	embeddedSkills: {
+		dir: ".agents/skills",
+		stripPrefix: "skills/",
 	},
 	buildCommand({ resume, dangerouslyAllowAll = true }: CommandOpts) {
 		const base = ["amp", "-x", "--stream-json", "--stream-json-input"];
@@ -77,10 +79,8 @@ export const ampPlugin: AgentPlugin = {
 				: { success: false, error: login.stderr };
 		},
 		async setup(ctx: SetupContext): Promise<void> {
-			const skillsDir = join(ctx.workspaceDir, ".agents", "skills");
-			await writeEmbeddedSkillsToDir(skillsDir);
 			const result = await runCommand(
-				["amp", "skill", "add", skillsDir],
+				["amp", "skill", "add", ctx.skillsDir],
 				ctx.workspaceDir,
 			);
 			if (result.ok) {
@@ -92,9 +92,8 @@ export const ampPlugin: AgentPlugin = {
 			}
 		},
 		async afterTask(ctx: TaskContext): Promise<void> {
-			const skillsDir = join(ctx.workspaceDir, ".agents", "skills");
 			const result = await runCommand(
-				["amp", "skill", "add", skillsDir],
+				["amp", "skill", "add", ".agents/skills"],
 				ctx.workspaceDir,
 			);
 			if (result.ok) {

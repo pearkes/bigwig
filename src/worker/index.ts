@@ -22,6 +22,7 @@ import {
 	WORKSPACE_DIR,
 } from "./config";
 import { loadWorkerCredentials, saveWorkerCredentials } from "./credentials";
+import { writeEmbeddedSkillsToDir } from "./embedded_skills";
 import { connectSideband } from "./sideband";
 import { initWorkspace } from "./sync_tools";
 
@@ -308,6 +309,10 @@ function stripTaskIds(title: string): string {
 
 async function initAgentWorkspace(): Promise<void> {
 	const agent = getAgentPlugin();
+	const embeddedSkills = agent.embeddedSkills;
+	const skillsDir = embeddedSkills
+		? join(WORKSPACE_DIR, embeddedSkills.dir)
+		: join(WORKSPACE_DIR, "skills");
 
 	if (agent.hooks.authenticate) {
 		const auth = await agent.hooks.authenticate({
@@ -325,10 +330,19 @@ async function initAgentWorkspace(): Promise<void> {
 		);
 	}
 
+	if (embeddedSkills) {
+		await writeEmbeddedSkillsToDir(skillsDir, {
+			filter: embeddedSkills.filterPrefix
+				? (file) => file.path.startsWith(embeddedSkills.filterPrefix || "")
+				: undefined,
+			stripPrefix: embeddedSkills.stripPrefix,
+		});
+	}
+
 	if (agent.hooks.setup) {
 		await agent.hooks.setup({
 			workspaceDir: WORKSPACE_DIR,
-			skillsDir: join(WORKSPACE_DIR, "skills"),
+			skillsDir,
 			toolDocs: getToolDocs(),
 		});
 	}

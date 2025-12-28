@@ -75,6 +75,11 @@ export interface AgentPlugin {
 		threadResume: boolean;
 		mcp: boolean;
 	};
+	embeddedSkills?: {
+		dir: string;
+		filterPrefix?: string;
+		stripPrefix?: string;
+	};
 	buildCommand: (opts: CommandOpts) => string[];
 	parseEvent: (line: string) => AgentEvent | null;
 	hooks: AgentPluginHooks;

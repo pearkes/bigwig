@@ -6,8 +6,8 @@ Usage:
     python utils/package_skill.py <path/to/skill-folder> [output-directory]
 
 Example:
-    python utils/package_skill.py skills/public/my-skill
-    python utils/package_skill.py skills/public/my-skill ./dist
+    python utils/package_skill.py .agents/skills/public/my-skill
+    python utils/package_skill.py .agents/skills/public/my-skill ./dist
 """
 
 import sys
@@ -86,8 +86,8 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python utils/package_skill.py <path/to/skill-folder> [output-directory]")
         print("\nExample:")
-        print("  python utils/package_skill.py skills/public/my-skill")
-        print("  python utils/package_skill.py skills/public/my-skill ./dist")
+        print("  python utils/package_skill.py .agents/skills/public/my-skill")
+        print("  python utils/package_skill.py .agents/skills/public/my-skill ./dist")
         sys.exit(1)
 
     skill_path = sys.argv[1]
