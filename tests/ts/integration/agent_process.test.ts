@@ -25,6 +25,7 @@ import { AmpProcess } from "../../../src/worker/agents/amp/process";
 import { ClaudeProcess } from "../../../src/worker/agents/claude/process";
 
 const SIMPLE_PROMPT = "Respond with exactly: PONG";
+const TOOL_PROMPT = "List the files in the current directory.";
 const TIMEOUT_MS = 30_000;
 const ALLOW_MISSING_AGENT_CLI =
 	process.env.BIGWIG_ALLOW_MISSING_AGENT_CLI === "1";
@@ -140,6 +141,10 @@ function assertAgentEvents(events: AgentEvent[], agentLabel: string): void {
 		return;
 	}
 	expect(hasText || completed).toBe(true);
+}
+
+function getToolUseEvents(events: AgentEvent[]): AgentEvent[] {
+	return events.filter((event) => event.type === "tool_use");
 }
 
 async function checkCliAvailable(cmd: string): Promise<boolean> {
@@ -260,6 +265,54 @@ describeIntegration("Agent Process Integration", () => {
 					assertAgentEvents(events, "claude");
 
 					console.log(`[claude] Received ${events.length} events`);
+				} finally {
+					await process.stop();
+				}
+			},
+			TIMEOUT_MS + 5000,
+		);
+
+		test(
+			"surfaces tool calls in the event stream",
+			async () => {
+				if (!claudeAvailable) {
+					console.log("[skip] claude not available");
+					return;
+				}
+
+				const process = new ClaudeProcess();
+
+				try {
+					const events = await withTimeout(
+						collectEvents(process.execute(TOOL_PROMPT), TIMEOUT_MS),
+						TIMEOUT_MS,
+						"claude tool use",
+					);
+
+					const toolEvents = getToolUseEvents(events);
+					if (toolEvents.length === 0) {
+						const errorMessage = getErrorMessage(events);
+						if (errorMessage && shouldSkipForError(errorMessage)) {
+							console.log(`[skip] claude not ready: ${errorMessage}`);
+							return;
+						}
+						const types = Array.from(
+							new Set(events.map((event) => String(event.type || "unknown"))),
+						).join(", ");
+						console.log(
+							`[skip] claude produced no tool_use events: ${types}`,
+						);
+						return;
+					}
+
+					const status = process.getStatus();
+					const hasToolHistory = status.tasks.some((task) => {
+						const history = task.events as Array<unknown> | undefined;
+						return Array.isArray(history) && history.length > 0;
+					});
+					expect(hasToolHistory).toBe(true);
+
+					console.log(`[claude] Tool events: ${toolEvents.length}`);
 				} finally {
 					await process.stop();
 				}

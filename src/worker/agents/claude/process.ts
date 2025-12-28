@@ -11,7 +11,7 @@ import { emitAgentEvent } from "../events";
 
 function formatToolInput(name: string, input: Record<string, unknown>): string {
 	if (name === "Bash") {
-		return String(input.cmd || "");
+		return String(input.command || input.cmd || "");
 	}
 	if (name === "Read") {
 		const path = String(input.path || "");
@@ -47,34 +47,119 @@ function formatToolInput(name: string, input: Record<string, unknown>): string {
 }
 
 type ToolUse = {
+	id?: string;
 	name: string;
 	input: Record<string, unknown>;
 };
 
-function extractToolUse(event: Record<string, unknown>): ToolUse | null {
+function coerceToolInput(input: unknown): Record<string, unknown> {
+	if (input && typeof input === "object" && !Array.isArray(input)) {
+		return input as Record<string, unknown>;
+	}
+	if (input === undefined) return {};
+	return { value: input };
+}
+
+function extractToolUses(event: Record<string, unknown>): ToolUse[] {
+	const uses: ToolUse[] = [];
+	const seen = new Set<string>();
+
+	const addToolUse = (name: string, input: unknown, id?: string) => {
+		if (!name) return;
+		const coerced = coerceToolInput(input);
+		let key = name;
+		try {
+			key += `:${JSON.stringify(coerced)}`;
+		} catch {
+			key += ":<unserializable>";
+		}
+		if (seen.has(key)) return;
+		seen.add(key);
+		uses.push({ id, name, input: coerced });
+	};
+
 	const type = event.type;
 	if (type === "tool_use" || type === "tool_call") {
-		const name = String(event.name || "");
-		const input = (event.input as Record<string, unknown>) || {};
-		if (name) return { name, input };
+		addToolUse(String(event.name || ""), event.input, String(event.id || ""));
 	}
 
 	if (type === "content_block_start") {
 		const block = event.content_block as Record<string, unknown> | undefined;
-		if (block?.type === "tool_use") {
-			const name = String(block.name || "");
-			const input = (block.input as Record<string, unknown>) || {};
-			if (name) return { name, input };
+		if (block?.type === "tool_use" || block?.type === "tool_call") {
+			addToolUse(
+				String(block.name || ""),
+				block.input,
+				String(block.id || ""),
+			);
 		}
+	}
+
+	if (type === "content_block_delta") {
+		const delta = event.delta as Record<string, unknown> | undefined;
+		if (delta?.type === "tool_use" || delta?.type === "tool_call") {
+			addToolUse(
+				String(delta.name || ""),
+				delta.input,
+				String(delta.id || ""),
+			);
+		}
+	}
+
+	const contentBlock = event.content_block as Record<string, unknown> | undefined;
+	if (contentBlock?.type === "tool_use" || contentBlock?.type === "tool_call") {
+		addToolUse(
+			String(contentBlock.name || ""),
+			contentBlock.input,
+			String(contentBlock.id || ""),
+		);
 	}
 
 	const tool = event.tool as Record<string, unknown> | undefined;
 	if (tool) {
-		const name = String(tool.name || "");
-		const input = (tool.input as Record<string, unknown>) || {};
-		if (name) return { name, input };
+		addToolUse(String(tool.name || ""), tool.input, String(tool.id || ""));
 	}
 
+	const message = event.message as Record<string, unknown> | undefined;
+	const content = message?.content as Array<Record<string, unknown>> | undefined;
+	if (Array.isArray(content)) {
+		for (const part of content) {
+			if (part.type === "tool_use" || part.type === "tool_call") {
+				addToolUse(String(part.name || ""), part.input, String(part.id || ""));
+			}
+		}
+	}
+
+	return uses;
+}
+
+function extractToolResultIds(event: Record<string, unknown>): string[] {
+	const ids: string[] = [];
+	const type = event.type;
+	if (type === "tool_result" && typeof event.tool_use_id === "string") {
+		ids.push(event.tool_use_id);
+	}
+
+	const message = event.message as Record<string, unknown> | undefined;
+	const content = message?.content as Array<Record<string, unknown>> | undefined;
+	if (Array.isArray(content)) {
+		for (const part of content) {
+			if (part.type === "tool_result" && typeof part.tool_use_id === "string") {
+				ids.push(part.tool_use_id);
+			}
+		}
+	}
+
+	if (typeof event.tool_use_id === "string") {
+		ids.push(event.tool_use_id);
+	}
+
+	return ids;
+}
+
+function extractResultText(event: Record<string, unknown>): string | null {
+	if (event.type === "result" && typeof event.result === "string") {
+		return event.result;
+	}
 	return null;
 }
 
@@ -151,6 +236,7 @@ export class ClaudeProcess {
 	private currentTaskId: string | null = null;
 	private lastTaskDescription: string | null = null;
 	private taskIdFilePath: string | null = null;
+	private toolUseIdToIndex = new Map<string, number>();
 
 	static IDLE_TIMEOUT_SECONDS = 60;
 
@@ -345,10 +431,19 @@ export class ClaudeProcess {
 			const sessionId = extractSessionId(event);
 			if (sessionId && !this.sessionId) this.sessionId = sessionId;
 
-			const toolUse = extractToolUse(event);
-			if (toolUse) {
+			const toolUses = extractToolUses(event);
+			for (const toolUse of toolUses) {
 				const inputStr = formatToolInput(toolUse.name, toolUse.input);
 				const now = nowMs();
+				const lastTool = task.tool_history[task.tool_history.length - 1];
+				if (
+					lastTool &&
+					lastTool.status === "running" &&
+					lastTool.name === toolUse.name &&
+					lastTool.input === inputStr
+				) {
+					continue;
+				}
 
 				const toolInv: ToolInvocation = {
 					name: toolUse.name,
@@ -358,6 +453,9 @@ export class ClaudeProcess {
 				};
 				task.current_tool = toolUse.name;
 				task.tool_history.push(toolInv);
+				if (toolUse.id) {
+					this.toolUseIdToIndex.set(toolUse.id, task.tool_history.length - 1);
+				}
 
 				console.log(`[claude] Tool: ${toolUse.name} ${inputStr.slice(0, 50)}`);
 				emitAgentEvent({
@@ -375,10 +473,38 @@ export class ClaudeProcess {
 				};
 			}
 
+			const toolResultIds = extractToolResultIds(event);
+			if (toolResultIds.length > 0) {
+				const now = nowMs();
+				for (const toolUseId of toolResultIds) {
+					const idx = this.toolUseIdToIndex.get(toolUseId);
+					if (idx !== undefined) {
+						const inv = task.tool_history[idx];
+						if (inv && inv.status === "running") {
+							inv.status = "completed";
+							inv.completed_at = now;
+						}
+					}
+				}
+				if (task.tool_history.length > 0) {
+					const last = task.tool_history[task.tool_history.length - 1];
+					if (last.status === "running") {
+						last.status = "completed";
+						last.completed_at = now;
+					}
+				}
+			}
+
 			const delta = extractTextDelta(event);
 			if (delta) {
 				fullText += delta;
 				yield { type: "delta", text: delta, task_id: taskId };
+			}
+
+			const resultText = extractResultText(event);
+			if (resultText && !fullText) {
+				fullText = resultText;
+				yield { type: "delta", text: resultText, task_id: taskId };
 			}
 
 			if (isStopEvent(event)) {
@@ -438,6 +564,7 @@ export class ClaudeProcess {
 
 	private createTask(description: string): TaskRecord {
 		const now = nowMs();
+		this.toolUseIdToIndex.clear();
 		const task: TaskRecord = {
 			id: newTaskId(),
 			description,
