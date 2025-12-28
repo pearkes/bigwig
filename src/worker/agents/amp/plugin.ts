@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { writeEmbeddedSkillsToDir } from "../../embedded_skills";
 import type {
 	AgentPlugin,
 	AuthContext,
@@ -8,7 +9,6 @@ import type {
 	SetupContext,
 	TaskContext,
 } from "../types";
-import { writeEmbeddedSkillsToDir } from "../../embedded_skills";
 import { runCommand } from "./command";
 import { AmpProcess } from "./process";
 

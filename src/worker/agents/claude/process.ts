@@ -86,26 +86,20 @@ function extractToolUses(event: Record<string, unknown>): ToolUse[] {
 	if (type === "content_block_start") {
 		const block = event.content_block as Record<string, unknown> | undefined;
 		if (block?.type === "tool_use" || block?.type === "tool_call") {
-			addToolUse(
-				String(block.name || ""),
-				block.input,
-				String(block.id || ""),
-			);
+			addToolUse(String(block.name || ""), block.input, String(block.id || ""));
 		}
 	}
 
 	if (type === "content_block_delta") {
 		const delta = event.delta as Record<string, unknown> | undefined;
 		if (delta?.type === "tool_use" || delta?.type === "tool_call") {
-			addToolUse(
-				String(delta.name || ""),
-				delta.input,
-				String(delta.id || ""),
-			);
+			addToolUse(String(delta.name || ""), delta.input, String(delta.id || ""));
 		}
 	}
 
-	const contentBlock = event.content_block as Record<string, unknown> | undefined;
+	const contentBlock = event.content_block as
+		| Record<string, unknown>
+		| undefined;
 	if (contentBlock?.type === "tool_use" || contentBlock?.type === "tool_call") {
 		addToolUse(
 			String(contentBlock.name || ""),
@@ -120,7 +114,9 @@ function extractToolUses(event: Record<string, unknown>): ToolUse[] {
 	}
 
 	const message = event.message as Record<string, unknown> | undefined;
-	const content = message?.content as Array<Record<string, unknown>> | undefined;
+	const content = message?.content as
+		| Array<Record<string, unknown>>
+		| undefined;
 	if (Array.isArray(content)) {
 		for (const part of content) {
 			if (part.type === "tool_use" || part.type === "tool_call") {
@@ -140,7 +136,9 @@ function extractToolResultIds(event: Record<string, unknown>): string[] {
 	}
 
 	const message = event.message as Record<string, unknown> | undefined;
-	const content = message?.content as Array<Record<string, unknown>> | undefined;
+	const content = message?.content as
+		| Array<Record<string, unknown>>
+		| undefined;
 	if (Array.isArray(content)) {
 		for (const part of content) {
 			if (part.type === "tool_result" && typeof part.tool_use_id === "string") {

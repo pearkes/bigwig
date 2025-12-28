@@ -299,9 +299,7 @@ describeIntegration("Agent Process Integration", () => {
 						const types = Array.from(
 							new Set(events.map((event) => String(event.type || "unknown"))),
 						).join(", ");
-						console.log(
-							`[skip] claude produced no tool_use events: ${types}`,
-						);
+						console.log(`[skip] claude produced no tool_use events: ${types}`);
 						return;
 					}
 
