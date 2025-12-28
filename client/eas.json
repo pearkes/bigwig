@@ -1,7 +1,7 @@
 {
 	"cli": {
 		"version": ">= 5.0.0",
-		"appVersionSource": "local"
+		"appVersionSource": "remote"
 	},
 	"build": {
 		"development": {
@@ -21,7 +21,6 @@
 			}
 		},
 		"production": {
-			"autoIncrement": true,
 			"env": {
 				"APP_ENV": "production"
 			}
