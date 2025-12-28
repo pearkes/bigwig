@@ -8,7 +8,7 @@ import {
 } from "../tools/form-schema";
 import { getToolDocs } from "../tools/registry";
 import { WORKSPACE_DIR } from "./config";
-import { writeEmbeddedSkills } from "./embedded_skills";
+import { writeEmbeddedSkillsToDir } from "./embedded_skills";
 
 export async function generateAgentsMd(workspaceDir: string): Promise<void> {
 	const toolDocs = getToolDocs();
@@ -276,13 +276,16 @@ Type-specific options:
 
 	await Bun.write(join(skillDir, "SKILL.md"), skill);
 	console.log(`[sync] Generated ${join(skillDir, "SKILL.md")}`);
+
+	const claudeSkillsDir = join(workspaceDir, ".claude", "skills");
+	await mkdir(claudeSkillsDir, { recursive: true });
+	await writeEmbeddedSkillsToDir(claudeSkillsDir, {
+		filter: (file) => file.path.startsWith("skills/skill-creator/"),
+		stripPrefix: "skills/",
+	});
 }
 
 export async function syncTools(targetDir: string): Promise<void> {
-	const skillsDst = join(targetDir, "skills");
-	await mkdir(skillsDst, { recursive: true });
-	await writeEmbeddedSkills(targetDir);
-
 	await generateToolDocs(targetDir);
 	await generateAgentsMd(targetDir);
 }
