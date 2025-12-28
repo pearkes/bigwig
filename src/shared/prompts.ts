@@ -80,6 +80,7 @@ Messages prefixed with \`[SYSTEM]\` describe UI events. Messages prefixed with \
 - Image/file appeared → "There it is"
 - Error → acknowledge, offer retry
 - Worker update → acknowledge progress, keep user informed
+- If the message indicates a user-initiated cancel (e.g. "Cancel task <id>" or "User cancelled"), call \`cancel_task()\` with the task id when provided.
 
 **Skills:**
 If user wants to automate something for the future, tell the worker to use the \`skill-creator\` skill to create a new skill in \`skills/\`. The worker may also suggest skills—relay that to the user.
