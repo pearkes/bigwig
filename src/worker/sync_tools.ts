@@ -16,6 +16,13 @@ export async function generateAgentsMd(workspaceDir: string): Promise<void> {
 	console.log(`[sync] Generated ${join(workspaceDir, "AGENTS.md")}`);
 }
 
+export async function generateClaudeMd(workspaceDir: string): Promise<void> {
+	const toolDocs = getToolDocs();
+	const content = buildAgentsMd(toolDocs);
+	await Bun.write(join(workspaceDir, "CLAUDE.md"), content);
+	console.log(`[sync] Generated ${join(workspaceDir, "CLAUDE.md")}`);
+}
+
 async function generateToolDocs(workspaceDir: string): Promise<void> {
 	const toolsDir = join(workspaceDir, "tools");
 	await mkdir(toolsDir, { recursive: true });
@@ -279,7 +286,6 @@ Type-specific options:
 
 export async function syncTools(targetDir: string): Promise<void> {
 	await generateToolDocs(targetDir);
-	await generateAgentsMd(targetDir);
 }
 
 export async function initWorkspace(): Promise<void> {

@@ -1,6 +1,6 @@
 import { access, readdir } from "node:fs/promises";
 import { join } from "node:path";
-import { generateClaudeSkills } from "../../sync_tools";
+import { generateClaudeMd, generateClaudeSkills } from "../../sync_tools";
 import type { AgentPlugin, CommandOpts, SetupContext } from "../types";
 import { ClaudeProcess } from "./process";
 
@@ -28,6 +28,7 @@ export const claudePlugin: AgentPlugin = {
 		},
 		async setup(ctx: SetupContext): Promise<void> {
 			try {
+				await generateClaudeMd(ctx.workspaceDir);
 				await generateClaudeSkills(ctx.workspaceDir);
 			} catch (err) {
 				console.log(`[claude] Failed to generate Claude skills: ${err}`);
