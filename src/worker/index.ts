@@ -671,7 +671,7 @@ export async function startWorker(args: string[]): Promise<void> {
 	console.log(`[worker] Workspace: ${WORKSPACE_DIR}`);
 	console.log(`[worker] Agent: ${agentName}`);
 
-	await initWorkspace();
+	await initWorkspace(agentName);
 	await startBridge();
 	const connectPromise = connectWorker(url, token);
 	await initAgentWorkspace();

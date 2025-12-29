@@ -23,6 +23,19 @@ export async function generateClaudeMd(workspaceDir: string): Promise<void> {
 	console.log(`[sync] Generated ${join(workspaceDir, "CLAUDE.md")}`);
 }
 
+export async function generateAgentDocs(
+	workspaceDir: string,
+	agentName?: string | null,
+): Promise<void> {
+	if (agentName === "amp") {
+		await generateAgentsMd(workspaceDir);
+		return;
+	}
+	if (agentName === "claude") {
+		await generateClaudeMd(workspaceDir);
+	}
+}
+
 async function generateToolDocs(workspaceDir: string): Promise<void> {
 	const toolsDir = join(workspaceDir, "tools");
 	await mkdir(toolsDir, { recursive: true });
@@ -288,7 +301,7 @@ export async function syncTools(targetDir: string): Promise<void> {
 	await generateToolDocs(targetDir);
 }
 
-export async function initWorkspace(): Promise<void> {
+export async function initWorkspace(agentName?: string | null): Promise<void> {
 	const skipSync = (
 		process.env.BIGWIG_SKIP_SYNC ||
 		Bun.env.BIGWIG_SKIP_SYNC ||
@@ -301,6 +314,9 @@ export async function initWorkspace(): Promise<void> {
 	console.log("[worker] Syncing workspace tools...");
 	try {
 		await syncTools(WORKSPACE_DIR);
+		const activeAgent =
+			agentName || process.env.BIGWIG_AGENT || Bun.env.BIGWIG_AGENT;
+		await generateAgentDocs(WORKSPACE_DIR, activeAgent);
 		console.log("[worker] Workspace sync complete");
 	} catch (err) {
 		console.log(`[worker] Workspace sync failed: ${err}`);

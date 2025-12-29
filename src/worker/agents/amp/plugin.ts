@@ -1,4 +1,3 @@
-import { generateAgentsMd } from "../../sync_tools";
 import type {
 	AgentPlugin,
 	AuthContext,
@@ -80,11 +79,6 @@ export const ampPlugin: AgentPlugin = {
 				: { success: false, error: login.stderr };
 		},
 		async setup(ctx: SetupContext): Promise<void> {
-			try {
-				await generateAgentsMd(ctx.workspaceDir);
-			} catch (err) {
-				console.log(`[sync] Failed to generate AGENTS.md: ${err}`);
-			}
 			const result = await runCommand(
 				["amp", "skill", "add", ctx.skillsDir],
 				ctx.workspaceDir,
