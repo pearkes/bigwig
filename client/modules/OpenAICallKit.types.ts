@@ -86,10 +86,21 @@ export interface CallIdEvent {
 	callId: string;
 }
 
+export interface AudioRouteOutput {
+	portType: string;
+	portName: string;
+}
+
+export interface AudioRouteChangeEvent {
+	isSpeaker: boolean;
+	outputs: AudioRouteOutput[];
+}
+
 /** Callback types for event listeners */
 export type CallStateCallback = (event: CallStateChangeEvent) => void;
 export type ErrorCallback = (event: CallErrorEvent) => void;
 export type CallIdCallback = (event: CallIdEvent) => void;
+export type AudioRouteCallback = (event: AudioRouteChangeEvent) => void;
 export type WebRTCEventCallback = (event: Record<string, unknown>) => void;
 
 /** Hook return type */

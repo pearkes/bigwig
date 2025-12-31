@@ -34,6 +34,7 @@ import type {
 	CallErrorEvent,
 	CallIdCallback,
 	CallStateCallback,
+	AudioRouteCallback,
 	ErrorCallback,
 	SessionConfig,
 	UseOpenAICallReturn,
@@ -44,6 +45,7 @@ export type {
 	CallErrorEvent,
 	CallIdEvent,
 	CallStateChangeEvent,
+	AudioRouteChangeEvent,
 	SessionConfig,
 	UseOpenAICallReturn,
 } from "./OpenAICallKit.types";
@@ -257,6 +259,25 @@ export function addCallIdListener(callback: CallIdCallback): () => void {
 }
 
 /**
+ * Subscribe to audio route changes (speaker, headphones, bluetooth, etc).
+ *
+ * @param callback - Function called when audio route changes
+ * @returns Unsubscribe function
+ */
+export function addAudioRouteListener(
+	callback: AudioRouteCallback,
+): () => void {
+	if (!nativeEventEmitter) {
+		return noop();
+	}
+	const subscription: EmitterSubscription = nativeEventEmitter.addListener(
+		"onAudioRouteChange",
+		callback,
+	);
+	return () => subscription.remove();
+}
+
+/**
  * Subscribe to WebRTC data channel events (transcripts, responses, etc).
  *
  * @param callback - Function called for each data channel message
@@ -339,6 +360,12 @@ export function useOpenAICall(): UseOpenAICallReturn {
 			}
 		});
 
+		const unsubAudioRoute = addAudioRouteListener((event) => {
+			if (mountedRef.current) {
+				setIsSpeakerEnabled(event.isSpeaker);
+			}
+		});
+
 		getCallState().then((state) => {
 			if (mountedRef.current) {
 				setCallState(state);
@@ -349,6 +376,7 @@ export function useOpenAICall(): UseOpenAICallReturn {
 			mountedRef.current = false;
 			unsubState();
 			unsubError();
+			unsubAudioRoute();
 		};
 	}, []);
 

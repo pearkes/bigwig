@@ -1,5 +1,6 @@
 import {
 	addCallIdListener,
+	addAudioRouteListener,
 	addWebRTCEventListener,
 	CallState,
 	sendDataChannelMessage,
@@ -9,6 +10,7 @@ import {
 export {
 	useOpenAICall,
 	addCallIdListener,
+	addAudioRouteListener,
 	addWebRTCEventListener,
 	sendDataChannelMessage,
 	CallState,

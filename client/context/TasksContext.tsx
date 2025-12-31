@@ -311,7 +311,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
 					return next;
 				});
 				broadcastSystemMessage(
-					`The employee has started working on: "${taskDesc}".`,
+					`Started working on: "${taskDesc}".`,
 					false,
 					taskId,
 				);
@@ -389,7 +389,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
 					return updated;
 				});
 				broadcastSystemMessage(
-					`The employee finished the task. Result: ${resultText.slice(0, 150)}`,
+					`Finished the task. Result: ${resultText.slice(0, 150)}`,
 					false,
 					taskId,
 				);

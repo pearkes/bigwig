@@ -37,6 +37,7 @@ class OpenAICallModule: RCTEventEmitter {
     private var isAudioSessionActive = false
     private var isWebRTCConnected = false
     private var desiredSpeakerEnabled = false
+    private var audioRouteObserver: NSObjectProtocol?
     
     // MARK: - Initialization
     
@@ -44,7 +45,20 @@ class OpenAICallModule: RCTEventEmitter {
         super.init()
         print("[OpenAICallModule] init - setting delegate on callManager")
         callManager.delegate = self
+        audioRouteObserver = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.routeChangeNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] notification in
+            self?.handleAudioRouteChange(notification)
+        }
         print("[OpenAICallModule] init complete")
+    }
+
+    deinit {
+        if let observer = audioRouteObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     // MARK: - Module Registration
@@ -64,7 +78,8 @@ class OpenAICallModule: RCTEventEmitter {
             "onCallStateChange",
             "onCallError",
             "onWebRTCEvent",
-            "onCallId"
+            "onCallId",
+            "onAudioRouteChange"
         ]
     }
     
@@ -79,6 +94,48 @@ class OpenAICallModule: RCTEventEmitter {
     private func emit(_ name: String, body: [String: Any]) {
         guard hasListeners else { return }
         sendEvent(withName: name, body: body)
+    }
+
+    private func emitAudioRouteChange() {
+        let session = AVAudioSession.sharedInstance()
+        let outputsInfo = session.currentRoute.outputs.map { output in
+            [
+                "portType": output.portType.rawValue,
+                "portName": output.portName
+            ]
+        }
+        let isSpeaker = session.currentRoute.outputs.contains { output in
+            output.portType == .builtInSpeaker
+        }
+        DispatchQueue.main.async { [weak self] in
+            self?.emit(
+                "onAudioRouteChange",
+                body: ["isSpeaker": isSpeaker, "outputs": outputsInfo]
+            )
+        }
+    }
+
+    private func handleAudioRouteChange(_ notification: Notification) {
+        emitAudioRouteChange()
+        guard desiredSpeakerEnabled, isAudioSessionActive else { return }
+        audioQueue.async { [weak self] in
+            guard let self = self else { return }
+            let session = AVAudioSession.sharedInstance()
+            let isSpeaker = session.currentRoute.outputs.contains { output in
+                output.portType == .builtInSpeaker
+            }
+            guard !isSpeaker else { return }
+            do {
+                let rtcSession = RTCAudioSession.sharedInstance()
+                rtcSession.lockForConfiguration()
+                defer { rtcSession.unlockForConfiguration() }
+                try rtcSession.overrideOutputAudioPort(.speaker)
+                print("[OpenAICallModule] Reapplied speaker after route change")
+            } catch {
+                print("[OpenAICallModule] Speaker reapply after route change error: \(error)")
+            }
+            self.emitAudioRouteChange()
+        }
     }
     
     // MARK: - Exported Methods
@@ -157,6 +214,7 @@ class OpenAICallModule: RCTEventEmitter {
                 
                 DispatchQueue.main.async {
                     print("[OpenAICallModule] Speaker \(enabled ? "enabled" : "disabled")")
+                    self.emitAudioRouteChange()
                     resolve(["success": true, "speakerEnabled": enabled])
                 }
             } catch {
@@ -232,6 +290,7 @@ extension OpenAICallModule: OpenAICallManagerDelegate {
             
             DispatchQueue.main.async {
                 self.isAudioSessionActive = true
+                self.emitAudioRouteChange()
                 self.checkAndReportConnectedIfReady()
             }
         }

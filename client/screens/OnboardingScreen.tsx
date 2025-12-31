@@ -92,8 +92,14 @@ export const OnboardingScreen = ({
 	useEffect(() => {
 		if (forcePairing) {
 			setShowPairingForm(false);
+			return;
 		}
-	}, [forcePairing]);
+		if (!hasSavedCredentials) {
+			setServerUrl("");
+			setPairingInput("");
+			setShowPairingForm(true);
+		}
+	}, [forcePairing, hasSavedCredentials]);
 
 	const scanStatus = useMemo(() => {
 		if (!permissions) return "unknown";
@@ -221,16 +227,6 @@ export const OnboardingScreen = ({
 						}}
 					>
 						<Text style={onboardingStyles.primaryButtonText}>Log In</Text>
-					</TouchableOpacity>
-				)}
-				{!forcePairing && (
-					<TouchableOpacity
-						style={onboardingStyles.secondaryButton}
-						onPress={() => setShowPairingForm(true)}
-					>
-						<Text style={onboardingStyles.secondaryButtonText}>
-							Pair a Different Server
-						</Text>
 					</TouchableOpacity>
 				)}
 			</View>
