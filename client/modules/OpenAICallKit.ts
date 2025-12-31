@@ -31,10 +31,10 @@ import {
 } from "react-native";
 
 import type {
+	AudioRouteCallback,
 	CallErrorEvent,
 	CallIdCallback,
 	CallStateCallback,
-	AudioRouteCallback,
 	ErrorCallback,
 	SessionConfig,
 	UseOpenAICallReturn,
@@ -42,10 +42,10 @@ import type {
 } from "./OpenAICallKit.types";
 
 export type {
+	AudioRouteChangeEvent,
 	CallErrorEvent,
 	CallIdEvent,
 	CallStateChangeEvent,
-	AudioRouteChangeEvent,
 	SessionConfig,
 	UseOpenAICallReturn,
 } from "./OpenAICallKit.types";
